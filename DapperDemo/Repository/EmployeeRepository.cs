@@ -3,7 +3,6 @@ using DapperDemo.Models;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
-
 namespace DapperDemo.Repository
 {
     public class EmployeeRepository : IEmployeeRepository
@@ -21,6 +20,15 @@ namespace DapperDemo.Repository
                         + "SELECT CAST(SCOPE_IDENTITY() as int); ";
             var id = db.Query<int>(sql, employee).Single();
             employee.EmployeeId = id;
+            return employee;
+        }
+
+        public async Task<Employee> AddAsync(Employee employee)
+        {
+            var sql = "INSERT INTO Employees (Name, Title, Email, Phone, CompanyId) VALUES(@Name, @Title, @Email, @Phone, @CompanyId);"
+                        + "SELECT CAST(SCOPE_IDENTITY() as int); ";
+            var id = await db.QueryAsync<int>(sql, employee);
+            employee.EmployeeId = id.Single();
             return employee;
         }
 

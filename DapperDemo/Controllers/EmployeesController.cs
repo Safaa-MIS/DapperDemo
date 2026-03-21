@@ -1,7 +1,7 @@
-﻿using DapperDemo.Models;
-using DapperDemo.Repository;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using DapperDemo.Models;
+using DapperDemo.Repository;
 
 namespace DapperDemo.Controllers
 {
@@ -9,27 +9,32 @@ namespace DapperDemo.Controllers
     {
         private readonly ICompanyRepository _compRepo;
         private readonly IEmployeeRepository _empRepo;
-        private readonly IBonusRepository _bonusRepo;
+        private readonly IBonusRepository _bonRepo;
 
         [BindProperty]
         public Employee Employee { get; set; }
 
-        public EmployeesController(ICompanyRepository compRepo, IEmployeeRepository empRepo, IBonusRepository bonusRepo)
+        public EmployeesController(ICompanyRepository compRepo, IEmployeeRepository empRepo, IBonusRepository bonRepo)
         {
             _compRepo = compRepo;
+            _bonRepo = bonRepo;
             _empRepo = empRepo;
-            _bonusRepo = bonusRepo;
         }
 
-        // GET: Companies
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int companyId = 0)
         {
-            return View(_empRepo.GetAll());
+            //List<Employee> employees = _empRepo.GetAll();
+            //foreach(Employee obj in employees)
+            //{
+            //    obj.Company = _compRepo.Find(obj.CompanyId);
+            //}
+
+            List<Employee> employees = _bonRepo.GetEmployeeWithCompany(companyId);
+            return View(employees);
         }
 
 
 
-        // GET: Companies/Create
         public IActionResult Create()
         {
             IEnumerable<SelectListItem> companyList = _compRepo.GetAll().Select(i => new SelectListItem
@@ -41,9 +46,6 @@ namespace DapperDemo.Controllers
             return View();
         }
 
-        // POST: Companies/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Create")]
@@ -51,14 +53,13 @@ namespace DapperDemo.Controllers
         {
             if (ModelState.IsValid)
             {
-                _empRepo.Add(Employee);
+                await _empRepo.AddAsync(Employee);
                 return RedirectToAction(nameof(Index));
             }
             return View(Employee);
         }
 
-        // GET: Companies/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public IActionResult Edit(int? id)
         {
             if (id == null)
             {
@@ -66,6 +67,12 @@ namespace DapperDemo.Controllers
             }
 
             Employee = _empRepo.Find(id.GetValueOrDefault());
+            IEnumerable<SelectListItem> companyList = _compRepo.GetAll().Select(i => new SelectListItem
+            {
+                Text = i.Name,
+                Value = i.CompanyId.ToString()
+            });
+            ViewBag.CompanyList = companyList;
             if (Employee == null)
             {
                 return NotFound();
@@ -73,9 +80,6 @@ namespace DapperDemo.Controllers
             return View(Employee);
         }
 
-        // POST: Companies/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id)
@@ -93,7 +97,6 @@ namespace DapperDemo.Controllers
             return View(Employee);
         }
 
-        // GET: Companies/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
