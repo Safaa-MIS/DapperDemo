@@ -1,4 +1,5 @@
-﻿using DapperDemo.Data;
+﻿using Dapper;
+using DapperDemo.Data;
 using DapperDemo.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -13,40 +14,43 @@ namespace DapperDemo.Repository
 {
     public class CompanyRepository : ICompanyRepository
     {
-        private readonly ApplicationDbContext _db;
+        private IDbConnection _db;
 
-        public CompanyRepository(ApplicationDbContext db)
+        public CompanyRepository(IConfiguration config)
         {
-            _db = db;        }
+            _db = new SqlConnection(config.GetConnectionString("DefaultConnection"));
+        }
 
         public Company Add(Company company)
         {
-            _db.Companies.Add(company);
-            _db.SaveChanges();
+          var sql = "INSERT INTO Companies (Name, Address, City, State, PostalCode) VALUES (@Name, @Address, @City, @State, @PostalCode); SELECT CAST(SCOPE_IDENTITY() as int)";
+            var id = _db.Query<int>(sql,company).Single();
+            company.CompanyId = id;
             return company;
         }
 
         public Company? Find(int id)
         {
-           return _db.Companies.FirstOrDefault(u=>u.CompanyId==id);
-                     }
+            var sql= "SELECT * FROM Companies WHERE CompanyId = @Id";
+                return _db.QueryFirstOrDefault<Company>(sql, new { Id = id });
+              }
 
         public List<Company> GetAll()
         {
-            return _db.Companies.ToList();
+            var sql= "SELECT * FROM Companies";
+            return _db.Query<Company>(sql).ToList();
         }
 
         public void Remove(int id)
         {
-            Company? company = _db.Companies.FirstOrDefault(u => u.CompanyId == id);
-            _db.Companies.Remove(company);
-            _db.SaveChanges();
-            return;
+        var sql = "DELETE FROM Companies WHERE CompanyId = @Id";
+            _db.Execute(sql, new { id });
         }
 
         public Company Update(Company company)
-        {
-            throw new NotImplementedException();
+        {var sql = "UPDATE Companies SET Name = @Name, Address = @Address, City = @City, State = @State, PostalCode = @PostalCode WHERE CompanyId = @CompanyId";
+            _db.Execute(sql, company);
+            return company;
         }
 
    
