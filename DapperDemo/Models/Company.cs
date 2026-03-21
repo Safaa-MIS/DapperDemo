@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Dapper.Contrib.Extensions;
 
 namespace DapperDemo.Models;
+
+[Table("Companies")]
     public class Company
     {
         public Company()
         {
             Employees = new List<Employee>();
         }
-
+    [Key]
         public int CompanyId { get; set; }
         public string Name { get; set; }
 
@@ -20,6 +17,6 @@ namespace DapperDemo.Models;
         public string City { get; set; }
         public string State { get; set; }
         public string PostalCode { get; set; }
-  
+    [Write(false)]
         public ICollection<Employee> Employees { get; set; }
     }
