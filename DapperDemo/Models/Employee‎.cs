@@ -1,4 +1,5 @@
 ﻿using Dapper.Contrib.Extensions;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace DapperDemo.Models
 {
@@ -11,6 +12,7 @@ namespace DapperDemo.Models
         public string Phone { get; set; }
         public string Title { get; set; }
         public int CompanyId { get; set; }
+        [ValidateNever]
         public virtual Company Company { get; set; }
     }
 }

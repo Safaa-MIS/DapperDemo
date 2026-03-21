@@ -1,13 +1,7 @@
-﻿using DapperDemo.Data;
-using DapperDemo.Models;
+﻿using DapperDemo.Models;
 using DapperDemo.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DapperDemo.Controllers
 {
@@ -15,14 +9,16 @@ namespace DapperDemo.Controllers
     {
         private readonly ICompanyRepository _compRepo;
         private readonly IEmployeeRepository _empRepo;
+        private readonly IBonusRepository _bonusRepo;
 
         [BindProperty]
         public Employee Employee { get; set; }
 
-        public EmployeesController(ICompanyRepository compRepo, IEmployeeRepository empRepo)
+        public EmployeesController(ICompanyRepository compRepo, IEmployeeRepository empRepo, IBonusRepository bonusRepo)
         {
             _compRepo = compRepo;
             _empRepo = empRepo;
+            _bonusRepo = bonusRepo;
         }
 
         // GET: Companies

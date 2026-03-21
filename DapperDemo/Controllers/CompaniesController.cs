@@ -1,13 +1,7 @@
-﻿using DapperDemo.Data;
-using DapperDemo.Models;
+﻿using DapperDemo.Models;
 using DapperDemo.Repository;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DapperDemo.Controllers
 {
@@ -15,9 +9,11 @@ namespace DapperDemo.Controllers
     {
         private readonly ICompanyRepository _compRepo;
 
-        public CompaniesController(ICompanyRepository repo)
+        private readonly IBonusRepository _bonusRepo;
+        public CompaniesController(ICompanyRepository repo, IBonusRepository bonusRepo)
         {
             _compRepo = repo;
+            _bonusRepo = bonusRepo;
         }
 
         // GET: Companies
@@ -34,7 +30,8 @@ namespace DapperDemo.Controllers
                 return NotFound();
             }
 
-            var company = _compRepo.Find(id.Value);
+            //var company = _compRepo.Find(id.Value);
+            var company = _bonusRepo.GetCompanyWithEmployees(id.GetValueOrDefault());
             if (company == null)
             {
                 return NotFound();
